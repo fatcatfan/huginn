@@ -62,12 +62,12 @@ module Agents
         #
         #if it's "subscribe" and we don't currently have a valid lease, then
         #fetch feed_url and emit to generate the first event (verify hub doesn't duplicate this)
-        if params['hub.topic'] == options['feedurl']
+        if params['hub.topic'] == options['feed_url']
             if params['hub.mode'] == "denied" && memory['subscribe']
                 errors.add(:base, "Subscription was denied:\n" + params['hub.reason'] + "\n" + request.headers["Location"])
                 return ["Not really OK, but... OK", 200]
             elsif params['hub.mode'] == "subscribe" && memory['subscribe']
-                response = faraday.get(options['feed_url'])
+                response = faraday.get(options['feed_url']) #it would probably be better to do this asynchronously, send the 'hub.challenge' response to hub before seeding first event
                 if response.success?
                     create_event(   payload: {
                                                 source: "seed",
